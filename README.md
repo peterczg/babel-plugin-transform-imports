@@ -201,7 +201,7 @@ string for the `transform` option:
 module.exports = {
   presets: ['@babel/env'],
   plugins: [
-    ['transform-imports', {
+    ['@peterczg/babel-plugin-transform-imports', {
       'my-library': {
         transform: (importName, matches) => `my-library/etc/${importName.toUpperCase()}`,
         preventFullImport: true,
