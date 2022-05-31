@@ -6,10 +6,11 @@ function createOptions({
   preventFullImport,
   transform = 'react-bootstrap/lib/${member}',
   skipDefaultConversion,
-  libraryName = 'react-bootstrap'
+  libraryName = 'react-bootstrap',
+  style = false
 }) {
   return {
-    [libraryName]: { transform, preventFullImport, skipDefaultConversion }
+    [libraryName]: { transform, preventFullImport, skipDefaultConversion, style }
   };
 };
 
@@ -259,6 +260,43 @@ describe('enhanced transform function', function(){
   const code = transform(`import { Layout, Row, Col, Grid } from 'react-bootstrap';`, options);
 
   assert.equal(code, [
+    'import { Layout } from "react-bootstrap/lib/Layout";',
+    'import { Row } from "react-bootstrap/lib/Layout";',
+    'import { Col } from "react-bootstrap/lib/Layout";',
+    'import { Grid } from "react-bootstrap/lib/Grid";',
+  ].join("\n"))
+  })
+
+  it('should handle member export and add side effect of style', function(){
+    const options = createOptions({ 
+      skipDefaultConversion: true,
+      transform:  function(importName) {
+          
+      if(importName === 'Layout') 
+      return {
+        default: true,
+        replace: 'react-bootstrap/lib/Layout'
+      }
+      
+      if(importName === 'Row' || importName === 'Col') 
+      return {
+        replace: `react-bootstrap/lib/Layout` 
+      }
+      
+      return `react-bootstrap/lib/${importName}`
+    },
+    style: function(importName, replace){
+      if(importName === 'Grid') return 'react-bootstrap/style/Grid.css'
+      return 'react-bootstrap/style/Layout.css'
+    }
+  },
+  );
+
+  const code = transform(`import { Layout, Row, Col, Grid } from 'react-bootstrap';`, options);
+
+  assert.equal(code, [
+    'import "react-bootstrap/style/Layout.css";',
+    'import "react-bootstrap/style/Grid.css";',
     'import { Layout } from "react-bootstrap/lib/Layout";',
     'import { Row } from "react-bootstrap/lib/Layout";',
     'import { Col } from "react-bootstrap/lib/Layout";',

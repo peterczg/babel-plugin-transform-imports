@@ -1,6 +1,9 @@
 var types = require('@babel/types');
 var isValidPath = require('is-valid-path');
 var pathLib = require('path');
+var { addSideEffect } = require('@babel/helper-module-imports')
+
+var noop = function() {}
 
 function isObject(val) {
   return Object.prototype.toString.call(val).slice(8, -1) === 'Object'
@@ -55,6 +58,10 @@ function transform(transformOption, importName, matches) {
   });
 }
 
+function addStyleEffect(style){
+  return typeof style === 'function' ? style : noop
+}
+
 module.exports = function () {
   return {
     visitor: {
@@ -78,6 +85,8 @@ module.exports = function () {
           }
 
           var transforms = [];
+
+          var styles = []
 
           var fullImports = path.node.specifiers.filter(function (specifier) { return specifier.type !== 'ImportSpecifier' });
           var memberImports = path.node.specifiers.filter(function (specifier) { return specifier.type === 'ImportSpecifier' });
@@ -103,6 +112,9 @@ module.exports = function () {
 
           var matches = isRegexp ? getMatchesFromSource(opt, source) : [];
 
+          var styled = addStyleEffect(opts.style)
+          var styleMap = {}
+
           memberImports.forEach(function (memberImport) {
             // Examples of member imports:
             //      import { member } from 'module'; (ImportSpecifier)
@@ -121,6 +133,16 @@ module.exports = function () {
 
             var skipDefault = false
 
+
+            // import style
+            var style = styled(importName, replace)
+            if(style){
+              if(!styleMap[replace]){
+                styleMap[replace] = importName
+                styles.unshift(style)
+              }
+            }
+
             if(isObject(replace)){
               skipDefault = !replace.default
               replace = replace.replace
@@ -138,6 +160,9 @@ module.exports = function () {
 
           if (transforms.length > 0) {
             path.replaceWithMultiple(transforms);
+          }
+          if(styles.length > 0 ){
+            styles.forEach(style => addSideEffect(path, style))
           }
         }
       }
