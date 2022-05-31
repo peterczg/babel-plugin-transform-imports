@@ -44,7 +44,7 @@ module.exports = {
         },
         "style": (importName, importPath) => {
           return `react-bootstrap/style/${importName}.css`
-        }
+        },
         "preventFullImport": true
       },
     }]
