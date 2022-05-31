@@ -42,6 +42,9 @@ module.exports = {
           
           return `react-bootstrap/lib/${importName}`
         },
+        "style": (importName, importPath) => {
+          return `react-bootstrap/style/${importName}.css`
+        }
         "preventFullImport": true
       },
     }]
