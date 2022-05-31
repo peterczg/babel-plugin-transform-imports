@@ -30,5 +30,8 @@
     "@babel/preset-env": "^7.4",
     "@babel/register": "^7.4.4",
     "mocha": "^6.1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   }
 }
