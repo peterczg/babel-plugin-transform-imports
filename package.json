@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@babel/helper-module-imports": "^7.16.7",
+    "@babel/helper-plugin-utils": "^7.17.12",
     "@babel/types": "^7.4",
     "is-valid-path": "^0.1.1"
   },
